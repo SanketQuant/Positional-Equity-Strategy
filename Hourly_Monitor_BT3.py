@@ -4,9 +4,7 @@ import datetime as dt
 import os
 import logging
 
-# ===============================
 # LOGGING
-# ===============================
 os.makedirs("logs", exist_ok=True)
 logging.basicConfig(
     filename="logs/intraday_monitor.log",
@@ -14,21 +12,15 @@ logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(message)s"
 )
 
-# ===============================
 # KITE CONNECT
-# ===============================
-kite = KiteConnect(api_key="q8ajnyro5jjn0e39")
-kite.set_access_token("15E1mKv2536r2mzu5arB7keTLHlWmbKa")
+kite = KiteConnect(api_key="")
+kite.set_access_token("")
 
-# ===============================
 # PATHS
-# ===============================
 INPUT_FILE = "output/Daily_Screener_BT3.xlsx"
 OUTPUT_FILE = "output/Hourly_Monitor_BT3.xlsx"
 
-# ===============================
 # LOAD DAILY SCREENER
-# ===============================
 watchlist = pd.read_excel(INPUT_FILE)
 
 if watchlist.empty:
@@ -38,9 +30,7 @@ if watchlist.empty:
 symbols = watchlist["SYMBOL"].unique().tolist()
 logging.info(f"Monitoring {len(symbols)} stocks")
 
-# ===============================
 # HELPER FUNCTION
-# ===============================
 def fetch_last_60min_candle(symbol):
     try:
         token = kite.ltp(f"NSE:{symbol}")[f"NSE:{symbol}"]["instrument_token"]
@@ -64,9 +54,7 @@ def fetch_last_60min_candle(symbol):
         logging.error(f"{symbol} 60min fetch error: {e}")
         return None
 
-# ===============================
 # MONITOR LOGIC
-# ===============================
 results = []
 
 for _, row in watchlist.iterrows():
@@ -96,9 +84,7 @@ for _, row in watchlist.iterrows():
         "COMMENT": comment
     })
 
-# ===============================
 # OUTPUT
-# ===============================
 output_df = pd.DataFrame(results)
 
 os.makedirs("output", exist_ok=True)
@@ -107,4 +93,5 @@ output_df.sort_values(["SIGNAL", "SYMBOL"], ascending=[False, True]).to_excel(
 )
 
 logging.info("Hourly monitor updated")
+
 print("Hourly Monitor BT3 completed.")
