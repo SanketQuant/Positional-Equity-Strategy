@@ -3,21 +3,16 @@ from datetime import datetime
 from kiteconnect import KiteConnect
 import os
 
-# =============================
 # KITE CONNECT SETUP
-# =============================
-kite = KiteConnect(api_key="q8ajnyro5jjn0e39")
-kite.set_access_token("15E1mKv2536r2mzu5arB7keTLHlWmbKa")
+kite = KiteConnect(api_key="")
+kite.set_access_token("")
 
 # PATHS
-# =============================
 BASE_DIR = os.getcwd()
 INPUT_FILE = os.path.join(BASE_DIR, "Manual_Positions_file.xlsx")
 OUTPUT_FILE = os.path.join(BASE_DIR, "output", "Position_Manager_Output_BT3.xlsx")
 
-# =============================
 # LOAD POSITIONS
-# =============================
 positions = pd.read_excel(INPUT_FILE)
 
 positions.columns = positions.columns.str.upper()
@@ -29,9 +24,7 @@ if open_positions.empty:
     print("No open positions to evaluate.")
     exit()
 
-# =============================
 # FETCH LIVE PRICES FROM KITE
-# =============================
 symbols = open_positions["SYMBOL"].unique().tolist()
 kite_symbols = [f"NSE:{sym}" for sym in symbols]
 
@@ -44,9 +37,7 @@ price_map = {
 
 open_positions["CMP"] = open_positions["SYMBOL"].map(price_map)
 
-# =============================
 # CALCULATIONS
-# =============================
 open_positions["ENTRY_DATE"] = pd.to_datetime(open_positions["ENTRY_DATE"])
 open_positions["HOLDING_DAYS"] = (datetime.now() - open_positions["ENTRY_DATE"]).dt.days
 
@@ -62,9 +53,7 @@ open_positions["MTM_PNL"] = (
     open_positions["CMP"] - open_positions["ENTRY_PRICE"]
 ) * open_positions["QTY"]
 
-# =============================
 # DECISION ENGINE (BT3)
-# =============================
 def decision(row):
     if row["CMP"] >= row["TARGET_PRICE"]:
         return "EXIT", "TARGET", "Target hit (+10%)"
@@ -84,9 +73,7 @@ results = open_positions.apply(
 
 open_positions = pd.concat([open_positions, results], axis=1)
 
-# =============================
 # FINAL OUTPUT
-# =============================
 output_cols = [
     "SYMBOL",
     "ENTRY_DATE",
@@ -107,4 +94,5 @@ output_cols = [
 open_positions[output_cols].to_excel(OUTPUT_FILE, index=False)
 
 print("Position Manager updated successfully.")
+
 print(f"Output saved to: {OUTPUT_FILE}")
