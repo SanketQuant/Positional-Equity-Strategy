@@ -6,7 +6,6 @@ import os
 import logging
 
 # LOGGING
-# ===============================
 os.makedirs("logs", exist_ok=True)
 logging.basicConfig(
     filename="logs/daily_screener.log",
@@ -15,22 +14,18 @@ logging.basicConfig(
 )
 
 # KITE CONNECT
-# ===============================
-kite = KiteConnect(api_key="q8ajnyro5jjn0e39")
-kite.set_access_token("15E1mKv2536r2mzu5arB7keTLHlWmbKa")
+kite = KiteConnect(api_key="")
+kite.set_access_token("")
 # PATHS
-# ===============================
 SYMBOL_FILE = "data/symbols.xlsx"
 OUTPUT_FILE = "output/Daily_Screener_BT3.xlsx"
 
 # LOAD SYMBOLS
-# ===============================
 symbols_df = pd.read_excel(SYMBOL_FILE, sheet_name="Sheet1")
 symbols = symbols_df["SYMBOL"].str.upper().unique().tolist()
 
 logging.info(f"Loaded {len(symbols)} symbols")
 # HELPER FUNCTIONS
-# ===============================
 def rsi(series, period=14):
     delta = series.diff()
     gain = delta.clip(lower=0)
@@ -56,7 +51,6 @@ def fetch_daily_data(symbol, days=120):
         return None
     
     # SCREENER LOGIC
-# ===============================
 results = []
 
 for symbol in symbols:
@@ -110,9 +104,7 @@ for symbol in symbols:
             "COMMENT": "BT3 setup ready – wait for 60m breakout"
         })
 
-# ===============================
 # OUTPUT
-# ===============================
 output_df = pd.DataFrame(results)
 
 if not output_df.empty:
@@ -123,4 +115,5 @@ else:
     logging.info("No stocks qualified today")
 
 print("Daily Screener BT3 completed.")
+
 print(f"Stocks shortlisted: {len(output_df)}")
